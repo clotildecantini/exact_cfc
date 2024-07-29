@@ -1,6 +1,6 @@
-# Customer Feedback classifier 
+# Exact solution for LTC Neural Network
 
-This repository aims to implement our exact soltuion for LTC neural network with neuron whose dynamics is governed by an ODE.
+This repository aims to implement our exact solution for LTC neural network with neuron whose dynamics is governed by an ODE.
 
 Make sure you are in the folder of the project after cloning.
 
