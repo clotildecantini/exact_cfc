@@ -39,19 +39,19 @@ This script require to have solved the odeint for this specific experiment, so b
 If you want to run the experiment for random input (you can modifiy number of synapse and time steps in the script) :
 
 ```bash
-python3 odeint_solver_script.py random 
+python3 ode_solver_script.py random 
 ```
 
 If you want to run the experiment for ecg input :
 
 ```bash
-python3 odeint_solver_script.py ecg 
+python3 ode_solver_script.py ecg 
 ```
 
 If you want to run the experiment for hasani data, you can choose the index of the neuron you want to solve the dynamic of :
 
 ```bash
-python3 odeint_solver_script.py 10
+python3 ode_solver_script.py 10
 ```
 To run the experiment you need to download the data provided by Hasani on the associated repository : 
 
