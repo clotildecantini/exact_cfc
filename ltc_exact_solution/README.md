@@ -65,7 +65,7 @@ These are provided in the Matlab file. The structure of the experiment rely on t
 To train the 3 models (Euler method, exact solution (ours) and approximation (Hasani)) on the MNIST dataset
 
 ```bash
-python3 model_experiments.py 10 # number of epochs
+python3 model_experiment.py 10 # number of epochs
 ```
 
 ## Download and Extract Dataset
