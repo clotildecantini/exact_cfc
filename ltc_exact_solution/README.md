@@ -53,7 +53,7 @@ If you want to run the experiment for hasani data, you can choose the index of t
 ```bash
 python3 ode_solver_script.py 10
 ```
-To run the experiment you need to download the data provided by Hasani on the associated repository : 
+To run the experiment you need to download the data provided by Hasani on the associated repository. Download `figure_1_experiments/figure_1_data.mat` from the following link and rename it `hasani_data.mat`: 
 
 [https://github.com/raminmh/CfC]
 
