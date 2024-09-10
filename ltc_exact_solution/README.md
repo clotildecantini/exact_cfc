@@ -64,8 +64,7 @@ python3 model_experiment.py 10 # number of epochs
 
 ## Download and Extract Dataset
 
-To run the experiment you need to download the data provided by Hasani on the associated repository. Download `figure_1_experiments/figure_1_data.mat` from the following link and rename it `hasani_data.mat`: 
-[https://github.com/raminmh/CfC]
+To run the experiment you need to download the data provided by Hasani on the associated repository. Download `figure_1_experiments/figure_1_data.mat` from [link](https://github.com/raminmh/CfC) and rename it `hasani_data.mat`
 
 The data is provided in the Matlab file. The structure of the experiment rely on this exact format.
 
