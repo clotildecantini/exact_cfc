@@ -1,231 +1,342 @@
-\documentclass[journal]{IEEEtran}
+\documentclass{article}
 
-\ifCLASSINFOpdf
-\else
-   \usepackage[dvips]{graphicx}
-\fi
-\usepackage{url}
-
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{amsmath,amssymb}
+\usepackage{amsfonts} 
+\usepackage{parskip}
 \usepackage{graphicx}
+\usepackage{appendix}
 \usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{hyperref}  
-\usepackage{float}
-\usepackage{cuted}
-\usepackage{graphicx}
 
-\newtheorem{prop}{Proposition}
-\newtheorem{thm}{Theorem}
-\newtheorem{corol}{Corollary}
-\newtheorem{proof}{Proof}
+% Margins
+\usepackage[top=2.5cm, left=3cm, right=3cm, bottom=4.0cm]{geometry}
+% Colour table cells
+\usepackage[table]{xcolor}
 
+% Get larger line spacing in table
+\newcommand{\tablespace}{\\[1.25mm]}
+\newcommand\Tstrut{\rule{0pt}{2.6ex}}         % = `top' strut
+\newcommand\tstrut{\rule{0pt}{2.0ex}}         % = `top' strut
+\newcommand\Bstrut{\rule[-0.9ex]{0pt}{0pt}}   % = `bottom' strut
 
+%%%%%%%%%%%%%%%%%
+%     Title     %
+%%%%%%%%%%%%%%%%%
+\title{Appendix}
+\date{}
 \begin{document}
+\maketitle
 
-\onecolumn
+Here we provide all supplementary materials to our letter. 
 
-\section{Exact solution for multiple pre-synaptic inputs neuron unit}
+\appendix
+%%%%%%%%%%%%%%%%%
+%   Content   %
+%%%%%%%%%%%%%%%%%
+\section{Training parameters}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=1\textwidth]{general_pipeline.png} 
-    \caption{ $L_2$-signal processing on the regular grid: a signal is convolved with the impulse response $h$ of an acquisition device $H$. Then it is regularly sampled where random noise $n[k]$ is added to the samples $c[k]$. The discrete sequence $c$ is then interpolated with a constant B-spline $\beta$ generator to represent a piecewise constant signal $\tilde y$ in the continuous domain. An intermediate layer $L$ of $N$ neurons is shown, where the highlighted neuron $L_x$ receives multiple pre-synaptic input signals.}
-    \label{fig: General pipeline }
-\end{figure}
+\begin{table}[htb]
+    \centering
+    \caption{Training parameters used for training the networks for the MNIST and Fashion-MNIST datasets.}
+    \label{tab:fashion_mnist}
+    \begin{tabular}{c||c|c|c}
+    \hline
+    Parameters & \multicolumn{3}{c}{Layer} \\
+    & Hasani & Euler & Our solution \\
+    \hline \hline
+    optimizer & Adam & Adam & Adam \\ 
+    batch size & 64 & 64 & 64  \\ 
+    epochs & 100 & 100 & 100  \\ 
+    learning rate & 0.001 & 0.05 & 0.05 \\
+    \hline
+    \end{tabular}
+\end{table}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=0.5\textwidth]{unit.png} 
-    \caption{Neuron units with multiple pre-synaptic inputs}
-    \label{fig:units}
-\end{figure}
+
+\section{Steps for One Dimensional Case}
+\setlength\parindent{0pt}
+
+In this section, we provide more details steps for computing the dynamcis of a liquid time-constant (LTC) neuron in the single presynaptic impulse case. 
+
+The ordinary differential equation (ODE) behind an LTC neuron with a single presynaptic input with no self-connections are described by ~\cite{Hasani_liquid_2021}
 
 
+\begin{equation}\label{app: ltc ODE}
+\frac{\mathrm{d}}{\mathrm{d}t}x(t)=-\omega x(t) + f(\tilde{g}(t), \sigma, \mu)\big( A - x(t)\big),
+\end{equation}
 
+where $x(t)$ is the time-dependent postsynaptic neuron's potential with $t\in\mathbb{R}$,  $\omega$ is the inverted postsynaptic neuron's time constant, $f$ is a synaptic release nonlinearity, where its parameters $\sigma \in\mathbb{R}$ and $\mu\in\mathbb{R}$ are learned during the training process, $A\in\mathbb{R}$ a synaptic reversal potential (usually referred to as \textit{bias}), and $\tilde{g}$ a signal describing the presynaptic stimulus. 
 
-We focus on the units of one neuron with multiple presynaptic stimulus as shown in the figure \ref{fig:units}.
-Here, we will solve the neuron's dynamic equation involving a total number of $S$ synapses. The equation is derived as follow:
+We represent a 1-dimensional input signal $\tilde{g}$ by a weighted sum of shifted basis functions on the sampling grid as
+
+\begin{equation}\label{app: signal}
+\tilde{g}(t)=\sum_{k\in\mathbb{Z}}c[k]\varphi(\frac{t}{T}-k),
+\end{equation}
+
+where the integer $T$ is the sampling step and $\{c[k]\}_{k\in\mathbb{Z}}$ a sequence of weights. Thereby, $\varphi\in L_2(\mathbb{R})$ is a generator, which we choose to be the constant B-spline interpolator, defined as
+
 \begin{equation}
-\frac{\mathrm{d}}{\mathrm{dt}}x(t)=-\omega x(t) + \sum_{s=0}^{S}f_s(\tilde{g}_s(t), \sigma_s, \mu_s)(A_s-x(t))
+    \beta(t) = \begin{cases}
+    1, & 0 \leq t < 1 \\
+    0, & \text{otherwise.}
+\end{cases}
+\end{equation}
+
+\noindent Here, to simplify readability, we restrict ourselves to sampling on the \textit{regular} grid. However, the extension of the presented theory to the irregularly sampled grid is straight-forward. Without any loss of generality we can set $T=1$ and thus,~\eqref{app: signal} is re-expressed as 
+
+\begin{equation}\label{app: spline signal}
+\tilde{g}(t)=\sum_{k\in\mathbb N} c[k]\beta(t-k).
+\end{equation}
+
+\noindent In the case where the B-spline interpolators are piecewise constants and $t \in [K; K+1[$ with $K=\lfloor t \rfloor\in\mathbb{N} $, it holds that 
+
+\begin{equation}\label{app: spline signal constants}
+\tilde{g}(t)=c[k].
+\end{equation}
+\noindent The solution to~\eqref{app: ltc ODE} is given by
+
+\begin{equation}\label{app: exact solution 1 synapse}
+    x(t)=\frac{1}{\alpha(t)}\left(x(0)+A\int_0^t f(\tilde{g}(u)) \alpha(u)\mathrm{d}u \right)
+\end{equation}
+
+\noindent with
+$$
+\alpha(t) = e^{\omega t+\int_0^tf(\tilde{g}(u))\mathrm{d}u}.
+$$
+
+\noindent Here we choose the synaptic release nonlinearity to be a sigmoid
+
+\begin{equation}\label{app: sigmoid}
+f(t,\sigma, \mu) = f(t) = \frac{1}{1 + e^{-\sigma (t - \mu)}}.
+\end{equation}
+
+Using\eqref{app: spline signal} and ~\eqref{app: spline signal constants} we now compute for $K \leq t < K+1$ (using decomposition of the piecewise constant signal)
+
+\begin{align}\label{app: integral sigmoid}
+\int_0^tf(\tilde{g}(u))\mathrm{d}u
+ &=  \int_K^{t} f(c[K]) \mathrm{d}u + \sum_{i=0}^{K-1} \int_i^{i+1} f(c[i]) \mathrm{d}u \notag \\
+&= (t - K)f(c[K]) + \sum_{i=0}^{K-1} f(c[i]).
+\end{align}
+
+The integral expression in \eqref{app: exact solution 1 synapse} can also be decomposed for piecewise constant inputs with $K \leq t < K+1$   
+\begin{align}\label{app: integral f-alpha-1}
+   \int_0^tf(\tilde{g}(u))\alpha(u)\mathrm{d}u
+&= \int_K^t f(\tilde{g}(u))\alpha(u)\mathrm{d}u + \sum_{i=0}^{K-1}  \int_i^{i+1} f(\tilde{g}(u))\alpha(u)\mathrm{d}u \notag \\
+&= f(c[K])\int_K^t e^{\omega u + \int_0^u f(\tilde{g}(v))\mathrm{d}v} \mathrm{d}u + \sum_{i=0}^{K-1}  f(c[i]) \int_i^{i+1} e^{\omega u + \int_0^u f(\tilde{g}(v))\mathrm{d}v} \mathrm{d}u.
+% &= \int_K^t f(\tilde{g}(u)) e^{wu + \int_0^u f(\tilde{g}(v))\mathrm{d}v} \mathrm{d}u + \sum_{i=0}^{K-1}  \int_i^{i+1} f(\tilde{g}(u)) e^{wu + \int_0^u f(\tilde{g}(v))\mathrm{d}v} \mathrm{d}u 
+\end{align}
+
+
+Using a change of  variable with 
+ 
+\begin{equation}
+z(u) = \omega u + \int_0^u f(\tilde{g}(v))\mathrm{d}v = \omega u + (u - K)f(c[K]) + \sum_{i=0}^{K-1} f(c[i]),
+\end{equation}
+
+where 
+
+\begin{equation}
+\frac{\mathrm{d}}{\mathrm{d}u}z(u) = \omega + f(c[K]),   
+\end{equation}
+
+the inner integral expression in Eq.\eqref{app: integral f-alpha-1} becomes
+
+\begin{align}
+\int_i^{i+1}  e^{\omega u + \int_0^u f(\tilde{g}(v))\mathrm{d}v} \mathrm{d}u 
+= \frac{\alpha[i+1]-\alpha[i])}{\omega + f(c[K])}.
+\end{align}
+
+Therefore \eqref{app: integral f-alpha-1} becomes
+\begin{equation} \label{app: integral f-alpha-2} 
+\int_0^tf(\tilde{g}(u))\alpha(u)\mathrm{d}u
+= \frac{f(c[K])(\alpha[t]-\alpha[K])}{\omega+f(c[K])} + \sum_{i=0}^{K-1}\frac{f(c[i])(\alpha[i+1]-\alpha[i])}{\omega+f(c[i])}.
+\end{equation}
+
+The solution to the ODE is given by the following, where we insert \eqref{app: integral f-alpha-2} into \eqref{app: exact solution 1 synapse}.
+
+\section{Proof of Theorem 1}
+\setlength\parindent{0pt}
+
+In this section, we provide the proof to the Theorem 1 given in our letter. It is an extension to the theory revised in the one-dimensional case, with multiple presynapctic inputs that are irregularly sampled. 
+
+\noindent We focus on the units of one neuron with multiple presynaptic stimulus. Here, we will solve the neuron's dynamic equation involving a total number of $S$ synapses. The equation is derived as~\cite{Hasani_liquid_2021}~\cite{Wicks1996}
+\begin{equation}
+\frac{\mathrm{d}}{\mathrm{dt}}x(t)=-\omega x(t) + \sum_{s=0}^{S}f_s(\tilde{g}_s(t), \sigma_s, \mu_s)(A_s-x(t)).
 \label{eq: exact solution several synapses}
 \end{equation}
 
+\noindent Consider a continuous stimulus signal sampled on the discrete domain with piecewise constant B-splines. For a total number of synapses $S$ containing input synapses from a previous layer and connecting synapses between neuron associated to a unique neuron, we have, for all \(s \in [1; S] \) and $t\in [\tau_k, \tau_{k+1}[$:
+
+\medskip
+\noindent $\tilde{g}_s(t) = c_s[k] \text{: the presynaptic stimulus for synapse $s$}$
+
+\medskip
+\noindent $f_s(t, \sigma_s, \mu_s) = f_s(t) = \frac{1}{1 + e^{-\sigma _s (t - \mu_s)}} \text{: synaptic release non-linearity for synapse $s$}$
+
+\bigskip
+\noindent \textit{Theorem 1:} We compute the exact solution of \eqref{eq: exact solution several synapses}, for piecewise constant input $\tilde{g} = (\tilde{g}_s)_{s\in [1, S]}$ and regularly or irregularly sampled inputs on time samples denoted by $(\tau_k)_{k\in \mathbb{N}} $  and $t\in [\tau_k, \tau_{k+1}[$:
 
 
-
-For a total number of synapses $S$ containing input synapses from a previous layer and connecting synapses between neuron associated to a unique neuron, we have, for all \(s \in [1; S] \) and $t\in [\tau_k, \tau_{k+1}[$ :
-
-$\tilde{g}_s(t) = c_s[k] \text{ : the pre-synaptic stimulus for synapse $s$}$
-
-$f_s(t, \sigma_s, \mu_s) = f_s(t) = \frac{1}{1 - e^{-\sigma _s (t - \mu_s)}} \text{ : synaptic release non-linearity for synapse $s$}$
-\vspace{1cm}
-
-\textit{Theorem 1 :} : We compute the exact solution of \ref{eq: exact solution several synapses}, for piecewise constant input $\tilde{g} = (\tilde{g}_s)_{s\in [1, S]}$ and regularly or irregularly sampled inputs on time samples denoted by $(\tau_k)_{k\in \mathbb{N}} $  and $t\in [\tau_k, \tau_{k+1}[$:
-
-
-\begin{equation}
- x(t) =  \alpha^{-1}(t) \left( x(0) + \Delta(t)\sum_{s=0}^{S} A_s u_s(\tau_i) +\sum_{i=0}^{k-1} \Delta(\tau_i)\sum_{s=0}^{S} A_s u_s(\tau_i) \right)
+\begin{equation} 
+ x(t) =  \frac{1}{\alpha(t)} \left( x(0) + \Delta(t)\sum_{s=0}^{S} A_s u_s(\tau_k) +\sum_{i=0}^{k-1} \Delta(\tau_i)\sum_{s=0}^{S} A_s u_s(\tau_i) \right)
  \label{eq:exact solution}
 \end{equation}
-Where
-\[
-    u_s(\tau_i) = \frac{f_s(c_s[i])}{\omega + \sum_{\sigma=1}^{S}  f_{\sigma}(c_{\sigma}[i])}
-\]
-\[
-    \alpha(t) = e^{\omega t + \sum_{s=0}^{S} (t-\tau_k)f_s(c_s[k])+\sum_{i=0}^{k-1}\sum_{s=0}^{S} (\tau_{i+1}-\tau_i)f_s(c_s[i])}
-\]
-\[
-    \Delta(\tau_i) =\alpha(\tau_{i+1}) - \alpha(\tau_i)
-\]
-\[
-    \Delta(t) =\alpha(t) - \alpha(\tau_k)
-\]
 
-\textit{Proof theorem 1 :}  
+\noindent Where
+\begin{align*}
+&\alpha(t) = e^{\omega t + \sum_{s=0}^{S} (t-\tau_k)f_s(c_s[k])+\sum_{i=0}^{k-1}\sum_{s=0}^{S} (\tau_{i+1}-\tau_i)f_s(c_s[i])}, \\
+&u_s(\tau_i) = \frac{f_s(c_s[i])}{\omega + \sum_{r=1}^{S}  f_{r}(c_{r}[i])}, \\
+&\Delta(\tau_i) =\alpha(\tau_{i+1}) - \alpha(\tau_i), \\ 
+&\Delta(t) =\alpha(t) - \alpha(\tau_k). 
+\end{align*}
 
+% \[
+%     u_s(\tau_i) = \frac{f_s(c_s[i])}{\omega + \sum_{\sigma=1}^{S}  f_{\sigma}(c_{\sigma}[i])}
+% \]
+% \[
+%     \alpha(t) = e^{\omega t + \sum_{s=0}^{S} (t-\tau_k)f_s(c_s[k])+\sum_{i=0}^{k-1}\sum_{s=0}^{S} (\tau_{i+1}-\tau_i)f_s(c_s[i])}
+% \]
+% \[
+%     \Delta(\tau_i) =\alpha(\tau_{i+1}) - \alpha(\tau_i)
+% \]
+% \[
+%     \Delta(t) =\alpha(t) - \alpha(\tau_k)
+% \]
+
+\bigskip
+\noindent \textit{Proof theorem 1}  
 
 Let's denote 
-\[
-\beta_S(t) = \sum_{s=1}^S f_s(\tilde{g}_s(t))
-\]
-\[
-c_S(t) = \sum_{s=1}^S A_s f_s(\tilde{g}_s(t))
-\]
+\begin{equation}
+    \eta_S(t) = \sum_{s=1}^S f_s(\tilde{g}_s(t)),
+\end{equation}
+\begin{equation}
+c_S(t) = \sum_{s=1}^S A_s f_s(\tilde{g}_s(t)).
+\end{equation}
 
-Equivalent problem:
+The equivalent problem to the ODE in \eqref{eq: exact solution several synapses} is 
 
-\[
-\frac{\mathrm{d}}{\mathrm{d}t} x(t)= - (\omega + \beta_S(t)) x (t) + c_S(t)
-\]
+\begin{equation} \label{ode equivalent problem}
+\frac{\mathrm{d}}{\mathrm{d}t} x(t)= - (\omega + \eta_S(t)) x (t) + c_S(t).    
+\end{equation}
 
-Let's define:
+Let us define for piecewise constant inputs and $t \in [\tau_{k}, \tau_{k+1}[$
 
-\[
-\alpha_S(t) = e^{\int_0^t (\omega+ \beta_S(u)) du} = e^{\omega t + \int_0^t \beta_S(u) du}
-\]
-\[
-= e^{\omega t + \sum_{s=1}^{S} \int_{\tau_k}^{t} f_s(\tilde{g}_s(u))) du + \sum_{s=1}^{S} \sum_{i=0}^{k-1} \int_{\tau_i}^{\tau_{i+1}} f_s(\tilde{g}_s(u)) du} 
-\]
-\[
-= 
-e^{\omega t + \sum_{s=1}^{S} (t-\tau_k)f_s(c_s[k]) + \sum_{s=1}^{S} \sum_{i=0}^{k-1} (\tau_{i+1}-\tau_i)f_s(c_s[i])} 
-\]
-By multiplying by $\alpha_S$ the equation $(E)$, we get : 
-\[
-\alpha_S(t) \frac{\mathrm{d}}{\mathrm{d}t}x(t)  = -  (\omega + \beta_S(t)) \alpha_S(t) x (t) + c_S(t) \alpha_S(t)
-\]
+\begin{align}
+\alpha_S(t) &= e^{\int_0^t (\omega+ \eta_S(u)) du} = e^{\omega t + \int_0^t \eta_S(u) du} \notag\\
+&=e^{\omega t + \sum_{s=1}^{S} \int_{\tau_k}^{t} f_s(\tilde{g}_s(u))) du + \sum_{s=1}^{S} \sum_{i=0}^{k-1} \int_{\tau_i}^{\tau_{i+1}} f_s(\tilde{g}_s(u)) du} \notag\\
+&= e^{\omega t + \sum_{s=1}^{S} (t-\tau_k)f_s(c_s[k]) + \sum_{s=1}^{S} \sum_{i=0}^{k-1} (\tau_{i+1}-\tau_i)f_s(c_s[i])} \notag \\
+&= \alpha (t).
+\end{align}
 
-We observe that : 
+By multiplying by $\alpha_S$ the equation \eqref{ode equivalent problem}, we obtain: 
+\begin{equation} \label{ODE_times_alpha}
+\alpha_S(t) \frac{\mathrm{d}}{\mathrm{d}t}x(t)  = -  (\omega + \eta_S(t)) \alpha_S(t) x (t) + c_S(t) \alpha_S(t).    
+\end{equation}
 
-\[
-\alpha_S(t) \frac{\mathrm{d}}{\mathrm{d}t}x(t) + (\omega + \beta_S(t)) \alpha_S(t) x (t) = \frac{\mathrm{d} }{\mathrm{d}t}\alpha_S(t) x(t)
-\]
+When taking the derivative of $\alpha_S(t) x(t)$, we observe that 
+\begin{equation}\label{app: d_alpha_x}
+\alpha_S(t) \frac{\mathrm{d}}{\mathrm{d}t}x(t) + (\omega + \eta_S(t)) \alpha_S(t) x (t) = \frac{\mathrm{d} }{\mathrm{d}t}\alpha_S(t) x(t).    
+\end{equation}
 
-Now we have:
+Inserting \eqref{app: d_alpha_x} into \eqref{ODE_times_alpha}, we have
 
-\[
-\alpha_S(t) x(t) = \int_0^t c_S(u) \alpha_S(u) du + C
-\]
+\begin{equation} \label{ODE_x(t)}
+\alpha_S(t) x(t) = \int_0^t c_S(u) \alpha_S(u) du + C.
+\end{equation}
 
-Let's find \(C\):
+Let us find \(C\):
 
-\[
+\begin{equation}
 \alpha_S(t = 0) = 1 \quad \Rightarrow \quad C = x (t = 0)
-\]
-
-
-\[
+\end{equation}
+\begin{equation}
 \alpha_S(t) x (t) - x (0) = \int_0^t c_S(u) \alpha_S(u) du
-\]
+\end{equation}
 
 Let's now compute \(\int_0^t c_S(u) \alpha_S(u) du\):
 
+\begin{align}
+    \int_0^t c_S(u) \alpha_S(u) du 
+    &= \int_0^t \sum_{s=1}^S A_s f_s(g_s(u))\alpha_S(u) du \notag \\
+    &= \sum_{s=1}^S A_s \int_0^t f_s(g_s(u))\alpha_S(u) du \notag\\
+    & =  \sum_{s=1}^S A_s I_{S}(t, s),
+\end{align}
 
+where we define $I_{S}(t, s) = \int_0^t f_s(\tilde{g}_s(u))\alpha_S(u) du $. This expression for piecewise constant inputs becomes
 
-\[
-\int_0^t c_S(u) \alpha_S(u) du = \int_0^t \sum_{s=1}^S A_s f_s(g_s(u))\alpha_S(u) du 
-\]
-
-
-\[
- = \sum_{s=1}^S A_s \int_0^t f_s(g_s(u))\alpha_S(u) du
-\]
-\[
- =  \sum_{s=1}^S A_s I_{S}(t, s)
-\]
-
-
-Let's now compute $I_{S}(t, s)$.
-
+\begin{align}
+     I_{S}(t,s) &= \int_0^t f_s(\tilde{g}_s(u))\alpha_S(u) du \notag \\
+     &=\int_{\tau_k}^t  f_s(\tilde{g}_s(u))\alpha_S(u) du  + \sum_{i=0}^{k-1}\int_{\tau_i}^{\tau_{i+1} }f_s(\tilde{g}_s(u))\alpha_S(u) du \notag \\
+     &=\int_{\tau_k}^{t } f_s(\tilde{g}_s(u)) e^{\omega u + \int_0^u \eta_S(v) dv}du+ \sum_{i=0}^{k-1}\int_{\tau_i}^{\tau_{i+1} } f_s(\tilde{g}_s(u)) e^{\omega u + \int_0^u \eta_S(v) dv}du. 
+\end{align}
 
 
 
-\[
- I_{S}(t,s) = \int_0^t f_s(\tilde{g}_s(u))\alpha_S(u) du
-\]
-\begin{multline*}
-=\int_{\tau_k}^t  f_s(\tilde{g}_s(u))\alpha_S(u) du  + \sum_{i=0}^{k-1}\int_{\tau_i}^{\tau_{i+1} }f_s(\tilde{g}_s(u))\alpha_S(u) du 
-\\
-=\int_{\tau_k}^{t } f_s(\tilde{g}_s(u)) e^{\omega u + \int_0^u \beta_S(v) dv}du+ \sum_{i=0}^{k-1}\int_{\tau_i}^{\tau_{i+1} } f_s(\tilde{g}_s(u)) e^{\omega u + \int_0^u \beta_S(v) dv}du
-\end{multline*}
+As $u \in [\tau_i, \tau_{i+1}[$, we have
 
-As $u \in [\tau_i, \tau_{i+1}[$, we have :
-
-\begin{multline*}
-I_S(t, s)=\int_{\tau_k}^{t } f_s(c_s[k]) e^{\omega u + \sum_{s=1}^{S} (u-\tau_k)f_s(c_s[k]) + \sum_{s=1}^{S} \sum_{j=0}^{k-1} (\tau_{j+1}-\tau_j)f_s(c_s[j]) } du \\
-+ \sum_{i=0}^{k-1} \int_{\tau_i}^{\tau_{i+1}} f_s(c_s[i]) e^{\omega u + \sum_{s=1}^{S} (u-\tau_i)f_s(c_s[i]) + \sum_{s=1}^{S} \sum_{j=0}^{i-1} (\tau_{j+1}-\tau_j)f_s(c_s[j])} du
-\end{multline*}
+\begin{align*}
+I_S(t, s)&=\int_{\tau_k}^{t } f_s(c_s[k]) e^{\omega u + \sum_{r=1}^{S} (u-\tau_k)f_r(c_r[k]) + \sum_{r=1}^{S} \sum_{j=0}^{k-1} (\tau_{j+1}-\tau_j)f_r(c_r[j]) } du \\
+&\quad + \sum_{i=0}^{k-1} \int_{\tau_i}^{\tau_{i+1}} f_s(c_s[i]) e^{\omega u + \sum_{r=1}^{S} (u-\tau_i)f_{r}(c_{r}[i]) + \sum_{r=1}^{S} \sum_{j=0}^{i-1} (\tau_{j+1}-\tau_j)f_{r}(c_{r}[j])} du.
+\end{align*}
 
 
-\[
- = f_s(c_s[k]) \frac{e^{\omega t + \int_0^t\beta_S(u)du } - e^{\omega \tau_k + \int_0^{\tau_k}\beta_S(u)du  }}{\omega + \sum_{\sigma = 1}^{S}f_\sigma(c_{\sigma}[k]) } +\sum_{i=0}^{k-1} f_s(c_s[i]) \frac{e^{\omega\tau_{i+1}+ \int_0^{\tau_{i+1}}\beta_S(u)du}- e^{\omega \tau_i +  \int_0^{\tau_{i}}\beta_S(u)du}}{\omega + \sum_{\sigma = 1}^{S}f_\sigma(c_{\sigma}[i])}
-\]
+Using a change of  variable with 
+\begin{equation}
+z(u) = \omega u + \sum_{r=1}^{S} (u-\tau_i)f_{r}(c_{r}[i]) + \sum_{r=1}^{S} \sum_{j=0}^{i-1} (\tau_{j+1}-\tau_j)f_{r}(c_{r}[j])
+\end{equation}
+where 
+\begin{equation}
+\frac{\mathrm{d}}{\mathrm{d}u}z(u) = \omega + \sum_{r = 1}^{S}f_r(c_{r}[k]),
+\end{equation}
+we obtain
+\begin{align}
+I_S(t,s)&= f_s(c_s[k]) \frac{e^{\omega t + \int_0^t\eta_S(u)du } - e^{\omega \tau_k + \int_0^{\tau_k}\eta_S(u)du  }}{\omega + \sum_{r = 1}^{S}f_r(c_{r}[k]) } +\sum_{i=0}^{k-1} f_s(c_s[i]) \frac{e^{\omega\tau_{i+1}+ \int_0^{\tau_{i+1}}\eta_S(u)du}- e^{\omega \tau_i +  \int_0^{\tau_{i}}\eta_S(u)du}}{\omega + \sum_{r = 1}^{S}f_r(c_{r}[i])}.
+\end{align}
 
 
-Then the final expression for the neuron's dynamic is the following :
+Then, from \eqref{ODE_x(t)}, the final expression for the neuron's dynamic is the following:
 
-\begin{multline*}
- x(t)=  (x(0) + \sum_{s=1}^S A_s( f_s(c_s[k]) \frac{e^{\omega t + \int_0^t\beta_S(u)du } - e^{\omega \tau_k + \int_0^{\tau_k}\beta_S(u)du  }}{\omega + \sum_{\sigma = 1}^{S}f_\sigma(c_{\sigma}[k]) }\\ +\sum_{i=0}^{k-1} f_s(c_s[i]) \frac{e^{\omega\tau_{i+1}+ \int_0^{\tau_{i+1}}\beta_S(u)du}- e^{\omega \tau_i +  \int_0^{\tau_{i}}\beta_S(u)du}}{\omega + \sum_{\sigma = 1}^{S}f_\sigma(c_{\sigma}[i])}) ) e^{- \omega t - \int_0^t \beta_S(u) du}
-\end{multline*}
-
-
-
-
-\[
- x(t)=  (x(0) + \sum_{s=1}^S A_sf_s(c_s[k]) \frac{\alpha(t)-\alpha(\tau_k)}{\omega + \beta_S[\tau_k]} + \sum_{s=1}^S\sum_{i=0}^{k-1} A_sf_s(c_s[i]) \frac{\alpha(\tau_{i+1})-\alpha(\tau_i) }{\omega + \beta_S(\tau_i)})\alpha^{-1}(t)
-\]
+\begin{align}
+ x(t) = \alpha^{-1}(t) \Bigg( x(0)
+ + \sum_{s=1}^S A_s &\left( f_s(c_s[k]) \frac{e^{\omega t + \int_0^t \eta_S(u) \, du} - e^{\omega \tau_k + \int_0^{\tau_k} \eta_S(u) \, du}}{\omega + \sum_{r = 1}^S f_r(c_{r}[k])} \right. \notag \\
+ &+ \left. \sum_{i=0}^{k-1} f_s(c_s[i]) \frac{e^{\omega \tau_{i+1} + \int_0^{\tau_{i+1}} \eta_S(u) \, du} - e^{\omega \tau_i + \int_0^{\tau_i} \eta_S(u) \, du}}{\omega + \sum_{r = 1}^S f_r(c_{r}[i])} \right) \Bigg)
+\end{align}
+\begin{align}
+x(t) = \alpha^{-1}(t) \left(x(0) + \sum_{s=1}^S A_sf_s(c_s[k]) \frac{\alpha(t)-\alpha(\tau_k)}{\omega + \eta_S[\tau_k]} + \sum_{s=1}^S\sum_{i=0}^{k-1} A_sf_s(c_s[i]) \frac{\alpha(\tau_{i+1})-\alpha(\tau_i) }{\omega + \eta_S(\tau_i)}\right)
+\end{align}
 
 
 
 To simplify the given expression for \( x(t) \):
 
+\begin{align*}
+ x(t) &= \alpha^{-1}(t) \left( x(0) + \left(\alpha(t) - \alpha(\tau_{k})\right) \sum_{s=0}^{S} A_s u_s(\tau_k)  + \sum_{i=0}^{k-1} \left(\alpha(\tau_{i+1}) - \alpha(\tau_{i})\right) \sum_{s=0}^{S} A_s u_s(\tau_i) )\right) \\
+  &= \alpha^{-1}(t) \left( x(0) + \Delta(t)\sum_{s=0}^{S} A_s u_s(\tau_k) +\sum_{i=0}^{k-1} \Delta(\tau_i)\sum_{s=0}^{S} A_s u_s(\tau_i) \right). \\
+\end{align*}
+$\hfill \square$
 
-\[
- x(t) = \alpha^{-1}(t) \left( x(0) + \left(\alpha(t) - \alpha(\tau_{i})\right) \sum_{s=0}^{S} A_s u_s(\tau_i)  + \sum_{i=0}^{k-1} \left(\alpha(\tau_{i+1}) - \alpha(\tau_{i})\right) \sum_{s=0}^{S} A_s u_s(\tau_i) )\right)
-\]
-\[
- = \alpha^{-1}(t) \left( x(0) + \Delta(t)\sum_{s=0}^{S} A_s u_s(\tau_i) +\sum_{i=0}^{k-1} \Delta(\tau_i)\sum_{s=0}^{S} A_s u_s(\tau_i) \right)
-\]
+\section{Proof of Corollary 1}
 
-
-\textit{Corollary 1 : } We do observe a recursive relationship between $\tau_{k+1}$ and $\tau_{k}$ :
+\textit{Corollary 1:} We observe a recursive relationship between $\tau_{k+1}$ and $\tau_{k}$:
 
 \[ x(\tau_{k+1})
  = e^{-\omega(\tau_{k+1}-\tau_k) - \sum_{s=0}^{S}(\tau_{k+1}-\tau_{k})f_s(c_s[k]))} \left(x(\tau_{k}) -\sum_{s=0}^{S} A_s w_s(\tau_{k})\right) + \sum_{s=0}^{S} A_s w_s(\tau_{k})
 \]
 
-\textit{Proof corollary 1 : }
+\subsection{Proof corollary 1 }
 
-\[
- x(\tau_{k+1})= 
- \alpha^{-1}(\tau_{k+1}) \left( x(0) + \sum_{i=0}^{k} \Delta(\tau_i)  \sum_{s=0}^{S} A_s w_s(\tau_i) \right) 
-\]
+\begin{align*}
+ x(\tau_{k+1})&= 
+ \alpha^{-1}(\tau_{k+1}) \left( x(0) + \sum_{i=0}^{k} \Delta(\tau_i)  \sum_{s=0}^{S} A_s w_s(\tau_i) \right) \\   
+  &= \alpha^{-1}(\tau_{k+1})\left(\alpha(\tau_{k}) x(\tau_{k}) + \Delta(\tau_{k})  \sum_{s=0}^{S} A_s w_s(\tau_{k})\right) \\
+   &= \alpha^{-1}(\tau_{k+1})\alpha(\tau_{k}) \left(x(\tau_{k}) -\sum_{s=0}^{S} A_s w_s(\tau_{k})\right)) + \sum_{s=0}^{S} A_s w_s(\tau_{k})
+\end{align*}
+$\hfill \square$
 
-\[
- = \alpha^{-1}(\tau_{k+1})\left(\alpha(\tau_{k}) x(\tau_{k}) + \Delta(\tau_{k})  \sum_{s=0}^{S} A_s w_s(\tau_{k})\right)
-\]
-\[
- = \alpha^{-1}(\tau_{k+1})\alpha(\tau_{k}) \left(x(\tau_{k}) -\sum_{s=0}^{S} A_s w_s(\tau_{k})\right)) + \sum_{s=0}^{S} A_s w_s(\tau_{k})
-\]
+% References
+\bibliographystyle{IEEEtran}
+\bibliography{references} % Specify your bibliography file
+
 \end{document}
-
